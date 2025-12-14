@@ -2,6 +2,9 @@
 
 An intelligent web application that uses AI to analyze outfit photos and provide personalized fashion recommendations.
 
+<img width="1728" height="996" alt="Screenshot 2025-12-14 at 1 38 16 PM" src="https://github.com/user-attachments/assets/cfa942b2-156f-4127-992e-b0f6efdee495" />
+
+
 ## Features
 
 - 📸 **Photo Upload**: Upload outfit images for analysis
