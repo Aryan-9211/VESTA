@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - VESTA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        text-align: center;
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+    }
+    
+    .upload-card {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 2.5rem;
+        margin-top: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+        border: 2px solid #e5e7eb;
+        padding: 0.75rem;
+        transition: border-color 0.2s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .feature-box {
+        background: #f9fafb;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .feature-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .image-preview {
+        max-width: 100%;
+        max-height: 300px;
+        margin-top: 1rem;
+        border-radius: 0.75rem;
+        display: none;
+    }
+    
+    .loading-spinner {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <h1 class="hero-title">
+        <i class="bi bi-stars"></i> Welcome to VESTA
+    </h1>
+    <p class="hero-subtitle">
+        AI-Powered Outfit Analysis & Fashion Recommendations
+    </p>
+</div>
+
+<!-- Upload Form -->
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="upload-card">
+            <h2 class="text-center mb-4">Analyze Your Outfit</h2>
+            <p class="text-center text-muted mb-4">
+                Upload a photo and let our AI rate your outfit and provide personalized suggestions
+            </p>
+            
+            <form method="post" action="{% url 'outfit_analyzer:analyze' %}" enctype="multipart/form-data" id="uploadForm">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    {{ form.image.label_tag }}
+                    {{ form.image }}
+                    {% if form.image.errors %}
+                        <div class="text-danger small mt-1">{{ form.image.errors }}</div>
+                    {% endif %}
+                    <img id="imagePreview" class="image-preview" alt="Preview">
+                    <div class="form-text">
+                        <i class="bi bi-info-circle"></i> Supported formats: JPG, PNG, WebP (Max 10MB)
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.occasion.label_tag }}
+                        {{ form.occasion }}
+                        {% if form.occasion.errors %}
+                            <div class="text-danger small mt-1">{{ form.occasion.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        {{ form.gender.label_tag }}
+                        {{ form.gender }}
+                        {% if form.gender.errors %}
+                            <div class="text-danger small mt-1">{{ form.gender.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    {{ form.age.label_tag }}
+                    {{ form.age }}
+                    {% if form.age.errors %}
+                        <div class="text-danger small mt-1">{{ form.age.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                        <i class="bi bi-sparkles"></i> Analyze My Outfit
+                    </button>
+                    <div class="loading-spinner mt-3" id="loadingSpinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Analyzing...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Analyzing your outfit...</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Features -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon">
+                        <i class="bi bi-stars"></i>
+                    </div>
+                    <h5>AI-Powered</h5>
+                    <p class="small text-muted mb-0">Advanced AI analyzes your outfit</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h5>Quick Results</h5>
+                    <p class="small text-muted mb-0">Get instant feedback in seconds</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+                    <h5>Smart Tips</h5>
+                    <p class="small text-muted mb-0">Personalized improvement suggestions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Image preview
+    document.getElementById('{{ form.image.id_for_label }}').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Show loading on form submit
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('loadingSpinner').style.display = 'block';
+    });
+</script>
+{% endblock %}

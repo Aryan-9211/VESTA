@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Analysis Result - VESTA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-card {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .rating-display {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 1rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+    
+    .rating-number {
+        font-size: 4rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    
+    .rating-label {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-top: 0.5rem;
+    }
+    
+    .outfit-image {
+        max-width: 100%;
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .suggestions-box {
+        background: #f9fafb;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .suggestions-content {
+        white-space: pre-line;
+        line-height: 1.8;
+    }
+    
+    .suggestions-content strong,
+    .suggestions-content b {
+        color: var(--primary-color);
+        display: block;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .suggestions-content strong:first-child,
+    .suggestions-content b:first-child {
+        margin-top: 0;
+    }
+    
+    .meta-info {
+        background: #f3f4f6;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .meta-item {
+        display: inline-block;
+        margin-right: 1.5rem;
+        color: #6b7280;
+    }
+    
+    .meta-item i {
+        color: var(--primary-color);
+        margin-right: 0.25rem;
+    }
+    
+    .rating-bar {
+        height: 30px;
+        background: #e5e7eb;
+        border-radius: 1rem;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+    
+    .rating-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 0.5rem;
+        color: white;
+        font-weight: 600;
+        transition: width 1s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="result-card">
+            <h2 class="text-center mb-4">
+                <i class="bi bi-check-circle-fill text-success"></i> Analysis Complete!
+            </h2>
+            
+            <div class="row">
+                <!-- Image Column -->
+                <div class="col-md-5">
+                    <img src="{{ analysis.image.url }}" alt="Outfit" class="outfit-image">
+                    
+                    <div class="meta-info">
+                        <div class="meta-item">
+                            <i class="bi bi-calendar-event"></i>
+                            <strong>{{ analysis.get_occasion_display }}</strong>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-person"></i>
+                            <strong>{{ analysis.get_gender_display }}</strong>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-hourglass-split"></i>
+                            <strong>Age {{ analysis.age }}</strong>
+                        </div>
+                    </div>
+                    
+                    {% if analysis.processing_time %}
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            <i class="bi bi-clock"></i> Analyzed in {{ analysis.processing_time|floatformat:2 }}s
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Results Column -->
+                <div class="col-md-7">
+                    <!-- Rating Display -->
+                    <div class="rating-display">
+                        <div class="rating-number">{{ analysis.rating }}/10</div>
+                        <div class="rating-label">Outfit Rating</div>
+                    </div>
+                    
+                    <!-- Rating Bar -->
+                    <div class="rating-bar">
+                        <div class="rating-fill" style="width: {{ analysis.rating }}0%">
+                            {{ analysis.rating }}
+                        </div>
+                    </div>
+                    
+                    <!-- Suggestions -->
+                    <div class="suggestions-box">
+                        <h4 class="mb-3">
+                            <i class="bi bi-lightbulb"></i> Personalized Suggestions
+                        </h4>
+                        <div class="suggestions-content">{{ analysis.suggestions|safe }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <a href="{% url 'outfit_analyzer:home' %}" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> Analyze Another Outfit
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animate rating bar on load
+    window.addEventListener('load', function() {
+        const ratingFill = document.querySelector('.rating-fill');
+        const targetWidth = ratingFill.style.width;
+        ratingFill.style.width = '0%';
+        setTimeout(() => {
+            ratingFill.style.width = targetWidth;
+        }, 100);
+    });
+</script>
+{% endblock %}
